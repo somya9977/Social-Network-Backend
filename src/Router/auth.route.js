@@ -145,14 +145,14 @@ router.post("/login", async(req, res) => {
         const { email, username, password } = req.body
         
         if (!password) 
-          {
+        {
           throw new Error("Password is required");
-          }
+        }
 
         const foundUser = await user.findOne({
-          $or : [
-             { email: email },
-             { username: username }
+        $or : [
+          { email: email },
+          { username: username }
           ]
         })  
 
@@ -175,25 +175,40 @@ router.post("/login", async(req, res) => {
         httpOnly: true,
         secure: false, 
         maxAge: 7 * 24 * 60 * 60 * 1000,
-      })
+        })
 
 
 
-         res.status(200).json({
-          success: true,
-          message: "Login successful",
+        res.status(200).json({
+        success: true,
+        message: "Login successful",
         })
 
 
 
   } catch (error) {
-    res.status(400).json({
+      res.status(400).json({
       success: false,
       message: error.message,
-    })
+      })
   }
 
 })
+
+router.post("/logout", (req, res) => {
+  try {
+          res.status(200).cookie("token", "").json({
+          success : true,
+          msg : "User logged out.."
+          })
+
+  } catch (error) {
+      res.status(500).json({
+      success: false,
+      message: error.message,
+      })
+  }
+});
 
 
 module.exports = {
