@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
       validate: [validator.isEmail, "Invalid email"],
+      immutable : true,
     },
 
     password: {
@@ -24,6 +25,7 @@ const userSchema = new mongoose.Schema(
       unique: true,
       trim: true,
       lowercase: true,
+       immutable : true,
     },
 
     firstName: {
@@ -40,6 +42,7 @@ const userSchema = new mongoose.Schema(
 
     dob: {
       type: Date,
+      immutable : true,
     },
 
     gender: {
