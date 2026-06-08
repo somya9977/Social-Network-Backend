@@ -16,6 +16,16 @@ router.post("/send-otp", async (req, res) => {
   try {
     const { email } = req.body
 
+    const existingUser = await user.findOne({
+        email: req.body.email
+      })
+      
+      if (existingUser) {
+        return res.status(400).json({
+          message: "User already exists"
+        });
+      }
+
     if (!validator.isEmail(email)) {
       return res.status(400).json({
         success: false,
