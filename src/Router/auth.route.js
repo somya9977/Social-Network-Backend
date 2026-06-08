@@ -69,9 +69,16 @@ router.post("/varify-mail", async(req, res) => {
         throw new Error("Invalid Otp")
       }
 
-      const savedMail = await varifyMail.create({
-        email,
-      })
+      const alreadyVerified = await varifyMail.findOne({ email })
+
+      if (!alreadyVerified) {
+        await varifyMail.create({
+          email,
+        });
+      }
+
+
+     
       
 
       res.status(200).json({
@@ -107,7 +114,7 @@ router.post("/signup", async(req, res) => {
           }
 
           if (username.length < 2 || username.length > 10) {
-              throw new Error("Please enter a username between 2 and 10 characters");
+              throw new Error("Please enter a username between 2 and 10 characters")
             }
 
             const foundMail = await varifyMail.findOne({email})

@@ -7,9 +7,10 @@ const port = process.env.PORT || 8000;
 const {authrouter} = require("./Router/auth.route")
 const {profileRouter} = require("./Router/profile.route")
 const cookieParser = require("cookie-parser")
+const cors = require("cors")
 
 
-
+app.use(cors())
 app.use(express.json())
 app.use(cookieParser())
 app.use("/api/auth", authrouter)
