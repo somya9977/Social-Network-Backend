@@ -9,8 +9,10 @@ const {profileRouter} = require("./Router/profile.route")
 const cookieParser = require("cookie-parser")
 const cors = require("cors")
 
-
-app.use(cors())
+app.use(cors({
+  origin: true,
+  credentials: true
+}))
 app.use(express.json())
 app.use(cookieParser())
 app.use("/api/auth", authrouter)

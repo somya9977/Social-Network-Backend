@@ -7,6 +7,7 @@ const validator = require("validator")
 const {user} = require("../model/user.model")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
+const { isLogIn } = require("../middleware/isLogIn")
 
 
 
@@ -199,6 +200,11 @@ router.post("/login", async(req, res) => {
         res.status(200).json({
         success: true,
         message: "Login successful",
+        user : {
+          username: foundUser.username,
+          email: foundUser.email,
+          isCompleted: foundUser.isCompleted
+        }
         })
 
 
@@ -225,7 +231,21 @@ router.post("/logout", (req, res) => {
       message: error.message,
       })
   }
-});
+})
+
+
+router.get("/verify", (req, res) => {
+  const token = req.cookies.token
+
+  if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_TOKEN);
+    return res.status(200).json({ user: decoded });
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid token" });
+  }
+})
 
 
 module.exports = {
