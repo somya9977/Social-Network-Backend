@@ -8,8 +8,10 @@ const validator = require("validator")
 
 router.put("/complete", isLogIn,  async(req, res) => {
     try {
+            console.log(req.body)
             const {firstName, lastName, dob, gender, bio, dp} = req.body
             const foundUser = req.user
+            
 
             if(!firstName?.trim() || !lastName?.trim() || !dob?.trim() || !gender?.trim())
             {
@@ -25,11 +27,15 @@ router.put("/complete", isLogIn,  async(req, res) => {
             foundUser.lastName = lastName
             foundUser.bio = bio
             foundUser.gender = gender
-            foundUser.dateOfBirth = dob
-            foundUser.displayPicture = dp
+            foundUser.dob = dob
+            foundUser.dp = dp
             foundUser. isCompleted = true
 
+            console.log("After assignment:", foundUser.dob)
+
             await foundUser.save()
+
+            console.log("After save:", foundUser.dob)
 
             res.status(200).json({
             success : true, 
@@ -146,7 +152,20 @@ router.patch("/edit/dp", isLogIn, async(req, res) => {
     }
 })
 
+router.get("/me", isLogIn, async(req, res) => {
+    try {
+         
+         const foundUser = req.user
+         res.status(200).json(foundUser)
 
+
+
+    } catch (error) {
+         res.status(400).json({
+            err : error.message
+        })
+    }
+})
 
 
 
