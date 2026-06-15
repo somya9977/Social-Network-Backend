@@ -172,7 +172,7 @@ router.post("/login", async(req, res) => {
           { email: email },
           { username: username }
           ]
-        })  
+        }).populate("posts")  
 
         if(!foundUser)
         {
@@ -206,7 +206,8 @@ router.post("/login", async(req, res) => {
           dp : foundUser.dp,
           followers : foundUser.followers,
           following : foundUser.following,
-          isCompleted: foundUser.isCompleted
+          isCompleted: foundUser.isCompleted,
+          posts : foundUser.posts
         }
         })
 
@@ -237,19 +238,48 @@ router.post("/logout", (req, res) => {
 })
 
 
-router.get("/verify", (req, res) => {
-  const token = req.cookies.token
+router.get("/verify", async (req, res) => {
+  const token = req.cookies.token;
 
-  if (!token) return res.status(401).json({ message: "Unauthorized" });
+  if (!token) {
+    return res.status(401).json({
+      message: "Unauthorized",
+    });
+  }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_TOKEN);
-    return res.status(200).json({ user: decoded });
-  } catch (err) {
-    return res.status(401).json({ message: "Invalid token" });
-  }
-})
 
+    const foundUser = await user.findById(decoded.id).populate("posts") 
+
+    if (!foundUser) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      user: {
+        id: foundUser._id,
+        username: foundUser.username,
+        email: foundUser.email,
+        firstName: foundUser.firstName,
+        lastName: foundUser.lastName,
+        gender: foundUser.gender,
+        bio: foundUser.bio,
+        dp: foundUser.dp,
+        followers: foundUser.followers,
+        following: foundUser.following,
+        posts: foundUser.posts,
+      },
+    });
+
+  } catch (err) {
+    return res.status(401).json({
+      message: "Invalid token",
+    });
+  }
+});
 
 module.exports = {
   authrouter : router

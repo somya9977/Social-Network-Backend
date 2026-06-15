@@ -6,6 +6,7 @@ const app = express()
 const port = process.env.PORT || 8000;
 const {authrouter} = require("./Router/auth.route")
 const {profileRouter} = require("./Router/profile.route")
+const {postRouter} = require("./Router/post.route")
 const cookieParser = require("cookie-parser")
 const cors = require("cors")
 
@@ -17,6 +18,7 @@ app.use(express.json())
 app.use(cookieParser())
 app.use("/api/auth", authrouter)
 app.use("/api/profile", profileRouter)
+app.use("/api/post",postRouter )
 
 app.use((req, res) => {
     res.status(404).json({

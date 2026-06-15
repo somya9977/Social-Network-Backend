@@ -7,7 +7,7 @@ const isLogIn = async(req, res, next) => {
           const {token} = req.cookies
 
           const decode = jwt.verify(token, process.env.JWT_TOKEN)
-          const foundUser = await user.findById(decode.id)
+          const foundUser = await user.findById(decode.id).populate("posts") 
 
           if(!foundUser)
           {

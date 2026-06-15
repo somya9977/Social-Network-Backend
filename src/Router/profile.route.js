@@ -40,7 +40,7 @@ router.put("/complete", isLogIn,  async(req, res) => {
             res.status(200).json({
             success : true, 
             msg : "Profile updated",
-            data : {
+            user : {
                 email : foundUser.email,
                 username : foundUser.username,
                 firstName : foundUser.firstName,
@@ -89,7 +89,7 @@ router.put("/edit", isLogIn, async(req, res) => {
             res.status(200).json({
                 success : true,
                 msg : "Profile updated",
-                data : {
+                user : {
                     email : foundUser.email,
                     username : foundUser.username,
                     firstName : foundUser.firstName,
@@ -97,7 +97,7 @@ router.put("/edit", isLogIn, async(req, res) => {
                     bio : foundUser.bio,
                     gender : foundUser.gender,
                     dateOfBirth : foundUser.dob,
-                    displayPicture : foundUser.dp,
+                    dp : foundUser.dp,
                     followers : foundUser.followers,
                     following : foundUser.following,
                     posts : foundUser.posts, 
