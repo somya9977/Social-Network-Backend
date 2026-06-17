@@ -2,7 +2,6 @@ const express = require("express")
 const router = express.Router()
 const { isLogIn } = require("../middleware/isLogIn")
 const validator = require("validator")
-// const {Post} = require("../model/post.model")
 const {user} = require("../model/user.model")
 const {Post} = require("../model/post.model")
 const mongoose = require("mongoose")
@@ -43,7 +42,31 @@ router.post('/create-post', isLogIn, async(req, res) => {
     }
 })
 
-router.get("/:id", isLoggedIn, async(req, res) => {
+router.get("/my-posts", isLogIn, async (req, res) => {
+  try {
+    const posts = await Post.find({ user: req.user._id }); // ✅ "user" field, "authorId" nahi
+
+    if (posts.length === 0) {
+      return res.status(200).json({
+        success: true,
+        msg: "No posts found",
+        data: [],
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      posts,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      err: error.message,
+    });
+  }
+});
+
+router.get("/:id", isLogIn, async(req, res) => {
     try {
             const {id} = req.params
 
@@ -71,7 +94,7 @@ router.get("/:id", isLoggedIn, async(req, res) => {
     }
 })
 
-router.delete("/:postId", isLoggedIn, async (req, res) => {
+router.delete("/:postId", isLogIn, async (req, res) => {
     try {
         const { postId } = req.params
         const foundUser = req.user
@@ -82,7 +105,7 @@ router.delete("/:postId", isLoggedIn, async (req, res) => {
            throw new Error("Post not found")
         }
 
-        if (post.authorId.toString() !== foundUser._id.toString()) {
+        if (post.user.toString() !== foundUser._id.toString()) { 
             throw new Error("You are not authorized to perform this action")
         }
 
@@ -101,31 +124,9 @@ router.delete("/:postId", isLoggedIn, async (req, res) => {
     }
 })
 
-router.get("/my-posts", isLoggedIn, async (req, res) => {
-  try {
-    const posts = await Post.find({authorId: req.user._id});
 
-    if (posts.length === 0) {
-      return res.status(200).json({
-        success: true,
-        msg: "No posts found",
-        data: [],
-      });
-    }
 
-    res.status(200).json({
-      success: true,
-      posts,
-    });
-  } catch (error) {
-    res.status(400).json({
-      success: false,
-      err: error.message,
-    });
-  }
-});
-
-router.put("/:id", isLoggedIn, async (req, res) => {
+router.put("/:id", isLogIn, async (req, res) => {
   try {
     const { caption, imageUrl } = req.body;
 
@@ -135,7 +136,7 @@ router.put("/:id", isLoggedIn, async (req, res) => {
       throw new Error("Post not found")
     }
 
-    if (post.authorId.toString() !== req.user._id.toString()) {
+    if (post.user.toString() !== req.user._id.toString()) { // ✅ "user" field
       throw new Error("You are not authorized to edit this post");
     }
 
@@ -161,16 +162,6 @@ router.put("/:id", isLoggedIn, async (req, res) => {
     });
   }
 });
-
-
-
-        
-
-
-
-
-
-
 
 module.exports = {
     postRouter : router
