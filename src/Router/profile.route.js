@@ -2,6 +2,7 @@ const express = require("express")
 const router = express.Router()
 const { isLogIn } = require("../middleware/isLogIn")
 const validator = require("validator")
+const { user } = require("../model/user.model")
 
 
 
@@ -163,6 +164,52 @@ router.get("/me", isLogIn, async(req, res) => {
     } catch (error) {
          res.status(400).json({
             err : error.message
+        })
+    }
+})
+
+router.post("/follow-unfollow/:id", isLogIn, async (req, res) => {
+    try {
+        const { id: targetUserId } = req.params
+        const currentUser = req.user
+
+        if (targetUserId === currentUser._id.toString()) {
+            throw new Error("You cannot follow yourself")
+        }
+
+        const targetUser = await user.findById(targetUserId)
+
+        if (!targetUser) {
+            throw new Error("User not found")
+        }
+
+        const isFollowing = currentUser.following.some(
+            (id) => id.toString() === targetUserId
+        )
+
+        if (isFollowing) {
+            
+            currentUser.following.pull(targetUserId)
+            targetUser.followers.pull(currentUser._id)
+        } else {
+           
+            currentUser.following.push(targetUserId)
+            targetUser.followers.push(currentUser._id)
+        }
+
+        await currentUser.save()
+        await targetUser.save()
+
+        res.status(200).json({
+            success: true,
+            msg: isFollowing ? "Unfollowed successfully" : "Followed successfully",
+            isFollowing: !isFollowing,
+        })
+
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            err: error.message
         })
     }
 })

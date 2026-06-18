@@ -163,6 +163,58 @@ router.put("/:id", isLogIn, async (req, res) => {
   }
 });
 
+
+router.patch("/like/:postId", isLogIn, async (req, res) => {
+  try 
+  {
+    const post = await Post.findById(req.params.postId);
+
+    if (!post) 
+    {
+      throw new Error("Post not found");
+    }
+
+    const userId = req.user._id;
+
+    const alreadyLiked = post.likes.some(
+      (id) => id.toString() === userId.toString(),
+    );
+
+    if (alreadyLiked) 
+      {
+      await Post.findByIdAndUpdate(req.params.postId, {
+        $pull: {
+          likes: userId,
+        },
+      });
+
+      return res.status(200).json({
+        success: true,
+        msg: "Post disliked successfully",
+      });
+    }
+
+    await Post.findByIdAndUpdate(req.params.postId, {
+      $push: {
+        likes: userId,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      msg: "Post liked successfully",
+    });
+  } 
+  catch (error) 
+  {
+    res.status(400).json({
+      success: false,
+      err: error.message,
+    });
+  }
+});
+
+
 module.exports = {
     postRouter : router
 }
