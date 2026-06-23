@@ -44,7 +44,7 @@ router.post('/create-post', isLogIn, async(req, res) => {
 
 router.get("/my-posts", isLogIn, async (req, res) => {
   try {
-    const posts = await Post.find({ user: req.user._id }); // ✅ "user" field, "authorId" nahi
+    const posts = await Post.find({ user: req.user._id }); 
 
     if (posts.length === 0) {
       return res.status(200).json({

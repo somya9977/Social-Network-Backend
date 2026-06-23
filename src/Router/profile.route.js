@@ -69,7 +69,7 @@ router.put("/complete", isLogIn,  async(req, res) => {
 
 })
 
-router.put("/edit", isLogIn, async(req, res) => {
+router.patch("/edit", isLogIn, async(req, res) => {
     try {
             const {firstName, lastName,  dp, bio} = req.body
 
@@ -153,22 +153,7 @@ router.patch("/edit/dp", isLogIn, async(req, res) => {
     }
 })
 
-router.get("/me", isLogIn, async(req, res) => {
-    try {
-         
-         const foundUser = req.user
-         res.status(200).json(foundUser)
-
-
-
-    } catch (error) {
-         res.status(400).json({
-            err : error.message
-        })
-    }
-})
-
-router.post("/follow-unfollow/:id", isLogIn, async (req, res) => {
+router.patch("/follow-unfollow/:id", isLogIn, async (req, res) => {
     try {
         const { id: targetUserId } = req.params
         const currentUser = req.user
@@ -212,6 +197,38 @@ router.post("/follow-unfollow/:id", isLogIn, async (req, res) => {
             err: error.message
         })
     }
+})
+router.get("/search", isLogIn, async (req, res) => {
+    try {
+            const {query} = req.query
+
+            if(!query || query.trim() === "")
+            {
+                return res.status(200).json({
+                    sucess : true,
+                    data : []
+                })
+            }
+
+            const users = user.find({
+                username : {$regex : query, $options : "i"} 
+            })
+            .select("username firstName lastName dp")
+
+            res.status(200).json({
+                sucess : true,
+                msg: "Users fetched",
+                data: users
+            })
+
+
+    } catch (error) {
+            res.status(400).json({
+            err: error.message
+        })
+    }
+
+
 })
 
 
