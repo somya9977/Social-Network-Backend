@@ -201,6 +201,7 @@ router.patch("/follow-unfollow/:id", isLogIn, async (req, res) => {
 router.get("/search", isLogIn, async (req, res) => {
     try {
             const {query} = req.query
+            const foundUser = req.user
 
             if(!query || query.trim() === "")
             {
@@ -210,8 +211,9 @@ router.get("/search", isLogIn, async (req, res) => {
                 })
             }
 
-            const users = user.find({
-                username : {$regex : query, $options : "i"} 
+            const users = await user.find({
+                username : {$regex : query, $options : "i"},
+                _id : {$ne :foundUser.id } 
             })
             .select("username firstName lastName dp")
 
@@ -229,6 +231,37 @@ router.get("/search", isLogIn, async (req, res) => {
     }
 
 
+})
+router.get("/:id", isLogIn, async (req, res) => {
+    try {
+        const { id } = req.params
+        const myId = req.user.id   // logged-in user ka id (auth middleware se)
+
+        const foundUser = await user.findById(id)
+            .select("username firstName lastName bio  dp followers following posts  dob createdAt")
+            .populate("posts")
+
+        if (!foundUser) {
+            throw new Error("User not found")
+        }
+
+        const isFollowing = foundUser.followers.some(
+            (followerId) => followerId.toString() === myId
+        )
+
+        res.status(200).json({
+            success: true,
+            data: {
+                ...foundUser.toObject(),
+                isFollowing
+            }
+        })
+
+    } catch (error) {
+        res.status(404).json({
+            err: error.message
+        })
+    }
 })
 
 
