@@ -35,6 +35,8 @@ router.post("/create-comment", isLogIn, async(req, res) => {
               post.comments.push(newComment._id)
               await post.save()
 
+              await newComment.populate("authorId", "username displayPicture firstName lastName")
+
               res.status(201).json({
               success: true,
               msg: "Comment added",
@@ -90,6 +92,39 @@ router.delete("/:id", isLogIn, async(req, res) => {
             err: error.message
         })
     }
+})
+router.patch("/like/:id", isLogIn, async (req, res) => {
+  try {
+    const commentId = req.params.id
+    const userId = req.user._id
+
+    const comment = await Comment.findById(commentId)
+
+    if (!comment) {
+      throw new Error("Comment not found")
+    }
+
+    const alreadyLiked = comment.likes.some((id) => id.toString() == userId.toString()
+    )
+
+    if (alreadyLiked) {
+      comment.likes = comment.likes.filter(
+        (id) => id.toString() !== userId.toString()
+      )
+    } else {
+      comment.likes.push(userId)
+    }
+
+    await comment.save()
+
+    res.status(200).json({
+      msg: alreadyLiked ? "Comment unliked" : "Comment liked"
+    })
+  } catch (error) {
+    res.status(400).json({
+      err: error.message,
+    })
+  }
 })
 
 

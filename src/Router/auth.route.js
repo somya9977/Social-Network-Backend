@@ -250,7 +250,16 @@ router.get("/verify", async (req, res) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_TOKEN);
 
-    const foundUser = await user.findById(decoded.id).populate("posts") 
+    const foundUser = await user.findById(decoded.id).populate({
+      path: "posts",
+      populate: {
+        path: "comments",
+        populate: {
+          path: "authorId",
+          select: "username dpfirstName lastName"
+        }
+      }
+    })
 
     if (!foundUser) {
       return res.status(404).json({

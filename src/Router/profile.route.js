@@ -241,7 +241,16 @@ router.get("/:id", isLogIn, async (req, res) => {
 
         const foundUser = await user.findById(id)
             .select("username firstName lastName bio  dp followers following posts  dob createdAt")
-            .populate("posts")
+            .populate({
+                    path: "posts",
+                    populate: {
+                    path: "comments",
+                    populate: {
+                        path: "authorId",
+                        select: "username displayPicture firstName lastName"
+                    }
+                }
+            })
 
         if (!foundUser) {
             throw new Error("User not found")
