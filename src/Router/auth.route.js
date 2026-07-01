@@ -250,16 +250,18 @@ router.get("/verify", async (req, res) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_TOKEN);
 
-    const foundUser = await user.findById(decoded.id).populate({
-      path: "posts",
-      populate: {
-        path: "comments",
+    const foundUser = await user.findById(decoded.id)
+      .populate({
+        path: "posts",
         populate: {
-          path: "authorId",
-          select: "username dpfirstName lastName"
+          path: "comments",
+          populate: {
+            path: "authorId",
+            select: "username dp firstName lastName"
+          }
         }
-      }
-    })
+      })
+      .populate("following", "username dp firstName lastName")
 
     if (!foundUser) {
       return res.status(404).json({
@@ -285,7 +287,7 @@ router.get("/verify", async (req, res) => {
 
   } catch (err) {
     return res.status(401).json({
-      message: "Invalid token",
+      message: err.message,
     });
   }
 });

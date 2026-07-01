@@ -9,7 +9,7 @@ const { user } = require("../model/user.model")
 
 router.put("/complete", isLogIn,  async(req, res) => {
     try {
-            console.log(req.body)
+            
             const {firstName, lastName, dob, gender, bio, dp} = req.body
             const foundUser = req.user
             
@@ -32,11 +32,11 @@ router.put("/complete", isLogIn,  async(req, res) => {
             foundUser.dp = dp
             foundUser. isCompleted = true
 
-            console.log("After assignment:", foundUser.dob)
+           
 
             await foundUser.save()
 
-            console.log("After save:", foundUser.dob)
+           
 
             res.status(200).json({
             success : true, 

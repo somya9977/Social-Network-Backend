@@ -4,7 +4,7 @@ const postSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "user",
+      ref: "User",
       required: true,
     },
 
@@ -22,7 +22,7 @@ const postSchema = new mongoose.Schema(
     },
     likes : [{
       type: mongoose.Schema.Types.ObjectId,
-      ref: "user",
+      ref: "User",
       default: []
     }],
     comments : [{

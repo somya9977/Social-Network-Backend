@@ -42,6 +42,49 @@ router.post('/create-post', isLogIn, async(req, res) => {
     }
 })
 
+router.get("/following-posts", isLogIn, async (req, res) => {
+  try {
+    
+   const {skip} = req.query
+   const currentUser = req.user;
+    
+
+    
+    const loggedInUser = await user.findById(currentUser._id).select("following");
+    
+
+    if (!loggedInUser) {
+      throw new Error("User not found");
+    }
+
+    const followingIds = loggedInUser.following; // array of ObjectIds jinhe follow kiya hai
+
+    const posts = await Post.find({ user: { $in: followingIds } })
+      .populate("user", "username dp firstName lastName")
+      .populate({
+        path: "comments",
+        populate: {
+          path: "authorId",
+          select: "username dp firstName lastName",
+        },
+      })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(10);
+
+    res.status(200).json({
+      success: true,
+      posts,
+    });
+  } catch (error) {
+     
+    res.status(400).json({
+      success: false,
+      err: error.message,
+    });
+  }
+});
+
 router.get("/my-posts", isLogIn, async (req, res) => {
   try {
     const posts = await Post.find({ user: req.user._id }); 
@@ -212,7 +255,9 @@ router.patch("/like/:postId", isLogIn, async (req, res) => {
       err: error.message,
     });
   }
-});
+})
+
+
 
 
 module.exports = {
